@@ -1,0 +1,6 @@
+customization:
+  systemExtensions:
+    officialExtensions:
+%{ for extension in extensions ~}
+    - ${extension}
+%{ endfor ~}

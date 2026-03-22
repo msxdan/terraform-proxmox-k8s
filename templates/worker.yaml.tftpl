@@ -1,0 +1,16 @@
+machine:
+  install:
+    image: factory.talos.dev/${platform}-installer/${schematic_id}:${talos_config.image.version}
+%{ if length(talos_config.kernel_args) > 0 ~}
+    extraKernelArgs:
+%{ for kernel_arg in talos_config.kernel_args ~}
+    - ${kernel_arg}
+%{ endfor ~}
+%{ endif ~}
+  network:
+%{ if hostname != "" ~}
+    hostname: ${hostname}
+%{ endif ~}
+    interfaces:
+    - interface: eth0
+      dhcp: true

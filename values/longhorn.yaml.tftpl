@@ -1,0 +1,7 @@
+# Default replica count — set to match the number of available nodes.
+# Longhorn defaults to 3 but homelabs often have only 2 workers.
+defaultSettings:
+  defaultReplicaCount: "${default_replica_count}"
+
+persistence:
+  defaultClassReplicaCount: ${default_replica_count}

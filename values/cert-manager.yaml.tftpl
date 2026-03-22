@@ -1,0 +1,14 @@
+# CRD management
+crds:
+  enabled: true
+  keep: true
+
+# Controller replicas (2+ recommended for HA)
+replicaCount: ${replicas}
+
+%{ if length(dns01_recursive_nameservers) > 0 ~}
+# DNS01 recursive nameservers — use external DNS servers when internal DNS
+# cannot resolve challenge records (common in homelabs / split-horizon setups)
+dns01RecursiveNameservers: "${join(",", dns01_recursive_nameservers)}"
+dns01RecursiveNameserversOnly: ${dns01_recursive_nameservers_only}
+%{ endif ~}

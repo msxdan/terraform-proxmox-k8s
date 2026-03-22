@@ -1,0 +1,22 @@
+# Proxmox CSI Plugin Configuration
+config:
+  clusters:
+    - url: ${proxmox_url}
+      insecure: ${insecure}
+      token_id: ${token_id}
+      token_secret: ${token_secret}
+%{ if region != null && region != "" ~}
+      region: ${region}
+%{ endif ~}
+
+%{ if length(storage_classes) > 0 ~}
+storageClass:
+%{ for sc in storage_classes ~}
+  - name: ${sc.name}
+    storage: ${sc.storage}
+    reclaimPolicy: ${sc.reclaim_policy}
+    fstype: ${sc.fstype}
+    cache: ${sc.cache}
+    ssd: ${sc.ssd}
+%{ endfor ~}
+%{ endif ~}
