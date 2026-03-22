@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 160 160" width="160" height="160" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Outer rings (Talos) -->
+  <circle cx="80" cy="80" r="62" stroke="#3B82F6" stroke-width="1.5" fill="none" opacity=".3"/>
+  <circle cx="80" cy="80" r="54" stroke="#3B82F6" stroke-width="2" fill="none" opacity=".55"/>
+
+  <!-- K8s hexagon r=38 -->
+  <polygon points="118.00,80.00 99.00,112.91 61.00,112.91 42.00,80.00 61.00,47.09 99.00,47.09"
+           stroke="#3B82F6" stroke-width="2.5" fill="none"/>
+
+  <!-- K8s spokes -->
+  <line x1="80" y1="80" x2="118.00" y2="80.00"  stroke="#3B82F6" stroke-width="1.5" opacity=".5"/>
+  <line x1="80" y1="80" x2="99.00"  y2="112.91" stroke="#3B82F6" stroke-width="1.5" opacity=".5"/>
+  <line x1="80" y1="80" x2="61.00"  y2="112.91" stroke="#3B82F6" stroke-width="1.5" opacity=".5"/>
+  <line x1="80" y1="80" x2="42.00"  y2="80.00"  stroke="#3B82F6" stroke-width="1.5" opacity=".5"/>
+  <line x1="80" y1="80" x2="61.00"  y2="47.09"  stroke="#3B82F6" stroke-width="1.5" opacity=".5"/>
+  <line x1="80" y1="80" x2="99.00"  y2="47.09"  stroke="#3B82F6" stroke-width="1.5" opacity=".5"/>
+
+  <!-- Proxmox diamonds — centros en r=62, rotados radialmente -->
+  <!-- 0° -->
+  <polygon points="149.00,80.00 142.00,87.00 135.00,80.00 142.00,73.00" fill="#FF6B2B"/>
+  <!-- 120° -->
+  <polygon points="45.50,139.76 42.94,130.19 52.50,127.63 55.06,137.19" fill="#FF6B2B"/>
+  <!-- 240° -->
+  <polygon points="45.50,20.24 55.06,22.81 52.50,32.37 42.94,29.81" fill="#FF6B2B"/>
+
+  <!-- Center dot -->
+  <circle cx="80" cy="80" r="9" fill="#FF6B2B"/>
+
+</svg>

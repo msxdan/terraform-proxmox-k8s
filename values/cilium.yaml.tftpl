@@ -1,0 +1,54 @@
+# IPAM Configuration
+ipam:
+  mode: kubernetes
+
+# Replace kube-proxy with Cilium's implementation
+kubeProxyReplacement: true
+
+# Security Context and Capabilities
+securityContext:
+  capabilities:
+    ciliumAgent:
+    - CHOWN
+    - KILL
+    - NET_ADMIN
+    - NET_RAW
+    - IPC_LOCK
+    - SYS_ADMIN
+    - SYS_RESOURCE
+    - DAC_OVERRIDE
+    - FOWNER
+    - SETGID
+    - SETUID
+    cleanCiliumState:
+    - NET_ADMIN
+    - SYS_ADMIN
+    - SYS_RESOURCE
+
+# CGroup Configuration
+cgroup:
+  autoMount:
+    enabled: false
+  hostRoot: /sys/fs/cgroup
+
+# Gateway API Support
+gatewayAPI:
+  enabled: ${gateway_api_enabled}
+
+# Kubernetes API Server Configuration
+k8sServiceHost: localhost
+k8sServicePort: 7445
+
+# L2 Announcements (for LoadBalancer services)
+l2announcements:
+  enabled: ${l2_enabled}
+%{ if l2_enabled ~}
+  leaseDuration: 3s
+  leaseRenewDeadline: 1s
+  leaseRetryPeriod: 200ms
+%{ endif ~}
+
+# Kubernetes Client Rate Limiting
+k8sClientRateLimit:
+  qps: 100
+  burst: 200

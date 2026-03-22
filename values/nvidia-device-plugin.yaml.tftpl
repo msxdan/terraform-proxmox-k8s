@@ -1,0 +1,37 @@
+# Talos Linux requires a RuntimeClass to use the nvidia containerd runtime.
+# The device plugin pod must run with runtimeClassName=nvidia so it can
+# discover GPUs via the NVIDIA Container Toolkit.
+runtimeClassName: nvidia
+
+# CDI (Container Device Interface) configuration for Talos.
+# nvidia-cdi-hook lives at /usr/local/bin/ on Talos (non-standard path).
+cdi:
+  nvidiaHookPath: /usr/local/bin/nvidia-cdi-hook
+
+# Node affinity: schedule only on nodes with nvidia.com/gpu.present=true label.
+# This replaces the default NFD-based affinity which requires Node Feature Discovery.
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: nvidia.com/gpu.present
+              operator: In
+              values:
+                - "true"
+
+%{ if time_slicing_replicas > 0 ~}
+# GPU Time-Slicing Configuration
+config:
+  default: "default"
+  map:
+    default: |-
+      version: v1
+      sharing:
+        timeSlicing:
+          renameByDefault: ${rename_by_default}
+          failRequestsGreaterThanOne: false
+          resources:
+            - name: nvidia.com/gpu
+              replicas: ${time_slicing_replicas}
+%{ endif ~}

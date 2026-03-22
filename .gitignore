@@ -1,0 +1,10 @@
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfplan
+.talosconfig
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json

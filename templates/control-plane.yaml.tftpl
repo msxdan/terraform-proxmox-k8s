@@ -1,0 +1,33 @@
+machine:
+  install:
+    image: factory.talos.dev/${platform}-installer/${schematic_id}:${talos_config.image.version}
+%{ if length(talos_config.kernel_args) > 0 ~}
+    extraKernelArgs:
+%{ for kernel_arg in talos_config.kernel_args ~}
+    - ${kernel_arg}
+%{ endfor ~}
+%{ endif ~}
+  network:
+%{ if hostname != "" ~}
+    hostname: ${hostname}
+%{ endif ~}
+    interfaces:
+    - interface: eth0
+      dhcp: true
+%{ if virtual_ip != null ~}
+      vip:
+        ip: ${virtual_ip}
+%{ endif ~}
+cluster:
+  allowSchedulingOnControlPlanes: ${allow_scheduling_on_control_planes}
+  network:
+    cni:
+      name: none
+  proxy:
+    disabled: true
+%{ if length(extra_manifests) > 0 ~}
+  extraManifests:
+%{ for url in extra_manifests ~}
+  - ${url}
+%{ endfor ~}
+%{ endif ~}
