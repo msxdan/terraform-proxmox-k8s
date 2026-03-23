@@ -292,6 +292,72 @@ tofu destroy
 
 ## :gear: Advanced Configuration
 
+<!-- Networking -->
+<details>
+<summary><b>Networking and IP Assignment</b></summary>
+
+<br>
+
+Each node requires a `mac_address` and an `ip` address. The module uses these to configure networking at two levels:
+
+1. **Proxmox cloud-init** — assigns the IP to the VM at boot time
+2. **Talos machine config** — uses `deviceSelector` with the MAC address to identify the primary network interface (instead of hardcoding `eth0`), making it independent of the kernel interface naming scheme
+
+#### DHCP with static leases (recommended)
+
+The simplest and most common setup. Your DHCP server assigns a fixed IP to each node based on its MAC address. The module uses `address = "dhcp"` in cloud-init and `dhcp: true` in the Talos machine config:
+
+```hcl
+nodes = {
+  "master-01" = {
+    host_node     = "pve-01"
+    machine_type  = "controlplane"
+    ip            = "192.168.97.10"    # Must match the DHCP reservation
+    mac_address   = "BC:24:11:97:00:10"
+    vm_id         = 4000
+    cpu           = 2
+    ram_dedicated = 4096
+  }
+}
+```
+
+Configure your router/DHCP server to reserve `192.168.97.10` for MAC `BC:24:11:97:00:10`.
+
+#### Static IP (no DHCP required)
+
+For environments without DHCP reservations, set `gateway` and optionally `subnet_mask` on each node. The module will:
+- Pass the static IP via Proxmox cloud-init so the node boots with the correct IP immediately
+- Set `dhcp: false` in the Talos machine config to prevent DHCP from assigning a second IP
+
+```hcl
+nodes = {
+  "master-01" = {
+    host_node     = "pve-01"
+    machine_type  = "controlplane"
+    ip            = "192.168.97.10"
+    gateway       = "192.168.96.1"
+    subnet_mask   = "22"               # Default: "24"
+    mac_address   = "BC:24:11:97:00:10"
+    vm_id         = 4000
+    cpu           = 2
+    ram_dedicated = 4096
+  }
+}
+```
+
+| Option        | Description                              | Default |
+| ------------- | ---------------------------------------- | ------- |
+| `gateway`     | Default gateway for static IP assignment | `null`  |
+| `subnet_mask` | CIDR prefix length                       | `"24"`  |
+
+**Note:** The module waits 30 seconds after bootstrap for the Kubernetes API server to become ready before installing Cilium. In most cases a single `tofu apply` completes successfully.
+
+#### Interface detection
+
+The module uses Talos `deviceSelector` with `hardwareAddr` to identify the primary network interface by MAC address. This works regardless of the kernel naming scheme (`eth0`, `enp0s18`, `end0`, etc.) and does not depend on the `net.ifnames=0` kernel argument.
+
+</details>
+
 <!-- L2 LoadBalancer -->
 <details>
 <summary><b>L2 LoadBalancer (CiliumLoadBalancerIPPool + CiliumL2AnnouncementPolicy)</b></summary>
@@ -900,8 +966,9 @@ They must be pre-booted with the correct Talos image.
 external_nodes = {
   # Raspberry Pi 5 — requires overlay for SBC boot support
   "rpi-01" = {
-    ip   = "192.168.97.50"
-    arch = "arm64"
+    ip             = "192.168.97.50"
+    arch           = "arm64"
+    interface_name = "end0"          # UKI boot uses predictable names
     overlay = {
       name  = "rpi_5"
       image = "siderolabs/sbc-rpi_5"
@@ -942,6 +1009,26 @@ external_talos_extensions = ["siderolabs/iscsi-tools"]
 Each external node with different extensions/overlay generates its own schematic and
 image, just like Proxmox nodes. The `external_talos_extensions` variable serves as
 the default for nodes that don't specify `talos_extensions`.
+
+#### Network interface
+
+External nodes identify their primary network interface by name (default `eth0`). If the node uses a different naming scheme — for example, SBCs with UKI boot use `end0` — set `interface_name` accordingly. Alternatively, if you know the MAC address, set `mac_address` to use `deviceSelector` (same method Proxmox VMs use):
+
+```hcl
+# Option A: by interface name (default: "eth0")
+"rpi-01" = {
+  ip             = "192.168.97.50"
+  interface_name = "end0"
+  # ...
+}
+
+# Option B: by MAC address (preferred when known)
+"server-01" = {
+  ip          = "192.168.97.60"
+  mac_address = "AA:BB:CC:DD:EE:FF"
+  # ...
+}
+```
 
 #### SBC overlays (Raspberry Pi, etc.)
 
