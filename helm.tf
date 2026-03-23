@@ -2,7 +2,7 @@
 
 resource "helm_release" "cilium" {
   depends_on = [
-    talos_machine_bootstrap.this
+    time_sleep.wait_for_api_server
   ]
 
   name       = "cilium"

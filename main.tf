@@ -314,7 +314,8 @@ resource "proxmox_virtual_environment_vm" "this" {
     datastore_id = each.value.datastore_id
     ip_config {
       ipv4 {
-        address = "dhcp"
+        address = each.value.gateway != null ? "${each.value.ip}/${each.value.subnet_mask}" : "dhcp"
+        gateway = each.value.gateway
       }
     }
   }
@@ -358,13 +359,19 @@ data "talos_machine_configuration" "this" {
         schematic_id                       = local.node_schematic_id[each.key]
         allow_scheduling_on_control_planes = var.cluster.allow_scheduling_on_control_planes
         extra_manifests                    = local.all_extra_manifests
+        gateway                            = each.value.gateway
+        mac_address                        = each.value.mac_address
+        interface_name                     = "eth0"
       })
       ] : [
       templatefile("${path.module}/templates/worker.yaml.tftpl", {
-        hostname     = local.use_hostname_config_doc ? "" : each.key
-        platform     = local.platform
-        talos_config = { image = { version = var.talos_version }, kernel_args = var.kernel_args }
-        schematic_id = local.node_schematic_id[each.key]
+        hostname       = local.use_hostname_config_doc ? "" : each.key
+        platform       = local.platform
+        talos_config   = { image = { version = var.talos_version }, kernel_args = var.kernel_args }
+        schematic_id   = local.node_schematic_id[each.key]
+        gateway        = each.value.gateway
+        mac_address    = each.value.mac_address
+        interface_name = "eth0"
       })
     ],
     # Talos 1.12+: hostname via HostnameConfig document (replaces deprecated machine.network.hostname)
@@ -422,6 +429,11 @@ resource "talos_cluster_kubeconfig" "this" {
   ]
   client_configuration = talos_machine_secrets.this.client_configuration
   node                 = [for k, v in var.nodes : v.ip if v.machine_type == "controlplane"][0]
+}
+
+resource "time_sleep" "wait_for_api_server" {
+  depends_on      = [talos_cluster_kubeconfig.this]
+  create_duration = "30s"
 }
 
 # --- External Nodes (bare-metal, e.g. Raspberry Pi) ---
@@ -521,13 +533,19 @@ data "talos_machine_configuration" "external" {
         schematic_id                       = local.ext_node_schematic_id[each.key]
         allow_scheduling_on_control_planes = var.cluster.allow_scheduling_on_control_planes
         extra_manifests                    = local.all_extra_manifests
+        gateway                            = each.value.gateway
+        mac_address                        = each.value.mac_address != null ? each.value.mac_address : ""
+        interface_name                     = each.value.interface_name
       })
       ] : [
       templatefile("${path.module}/templates/worker.yaml.tftpl", {
-        hostname     = local.use_hostname_config_doc ? "" : each.key
-        platform     = each.value.platform
-        talos_config = { image = { version = var.talos_version }, kernel_args = each.value.overlay != null ? [] : each.value.kernel_args }
-        schematic_id = local.ext_node_schematic_id[each.key]
+        hostname       = local.use_hostname_config_doc ? "" : each.key
+        platform       = each.value.platform
+        talos_config   = { image = { version = var.talos_version }, kernel_args = each.value.overlay != null ? [] : each.value.kernel_args }
+        schematic_id   = local.ext_node_schematic_id[each.key]
+        gateway        = each.value.gateway
+        mac_address    = each.value.mac_address != null ? each.value.mac_address : ""
+        interface_name = each.value.interface_name
       })
     ],
     local.use_hostname_config_doc ? [yamlencode({
