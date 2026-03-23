@@ -19,7 +19,7 @@ installs.
 - [ ] `routing_mode` (string, default `"tunnel"`) — `native` vs `tunnel`. Homelabs on flat L2 networks benefit from `native` routing for performance and simplicity.
 - [ ] `ipv4_native_routing_cidr` (string, default `""`) — Required when `routing_mode=native`. Tells Cilium which CIDR is natively routed to skip SNAT.
 - [ ] `auto_direct_node_routes` (bool, default `false`) — Installs pod CIDR routes automatically between nodes on L2 networks. Required for `routing_mode=native` without a BGP router.
-- [ ] `hubble` (object) — Observability layer. Expose `enabled` (default `true`), `relay.enabled` (default `false`), `ui.enabled` (default `false`), `metrics` (list of strings, e.g. `["dns:query;ignoreAAAA","drop","tcp","flow"]`).
+- [ ] `hubble` (object) — Cilium's built-in observability layer. Works standalone without Prometheus — the UI shows a real-time service map and flow table for debugging. Three independent levels: (1) flows via eBPF (near-zero overhead), (2) relay + UI for visual debugging (~256MB RAM total), (3) Prometheus metrics for Grafana dashboards (requires monitoring stack). Expose `enabled` (default `true`), `relay` (default `false`), `ui` (default `false`), `metrics` (list of strings, default `[]` — only useful with Prometheus, e.g. `["dns:query;ignoreAAAA","drop","tcp","flow","port-distribution","httpV2:exemplars=true"]`).
 - [ ] `operator_replicas` (number, default `2`) — Single-node or small clusters (1-3 nodes) should set to `1` to avoid scheduling issues and wasted resources.
 
 ### SHOULD HAVE
