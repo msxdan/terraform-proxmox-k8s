@@ -12,10 +12,10 @@
   <a href="https://github.com/msxdan/terraform-proxmox-k8s/releases/latest">
     <img src="https://img.shields.io/github/release/msxdan/terraform-proxmox-k8s?logo=github" alt="latest release" />
   </a>
-  <a href="https://registry.terraform.io/modules/msxdan/proxmox-k8s/proxmox">
+  <a href="https://registry.terraform.io/modules/msxdan/k8s/proxmox">
     <img src="https://img.shields.io/badge/Terraform-Registry-7B42BC?logo=terraform" alt="Terraform Registry" />
   </a>
-  <a href="https://search.opentofu.org/module/msxdan/proxmox-k8s/proxmox">
+  <a href="https://search.opentofu.org/module/msxdan/k8s/proxmox">
     <img src="https://img.shields.io/badge/OpenTofu-Registry-FFDA18?logo=opentofu" alt="OpenTofu Registry" />
   </a>
   <a href="https://github.com/msxdan/terraform-proxmox-k8s/blob/main/LICENSE">
@@ -150,7 +150,7 @@ Create your module configuration (e.g. `main.tf`):
 
 ```hcl
 module "cluster" {
-  source = "msxdan/proxmox-k8s/proxmox"
+  source = "msxdan/k8s/proxmox"
 
   talos_version      = "v1.12.5"
   kubernetes_version = "1.35.2"
