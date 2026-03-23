@@ -11,12 +11,19 @@ machine:
 %{ if hostname != "" ~}
     hostname: ${hostname}
 %{ endif ~}
+%{ if gateway != null || virtual_ip != null ~}
     interfaces:
-    - interface: eth0
-      dhcp: true
+%{ if mac_address != "" ~}
+    - deviceSelector:
+        hardwareAddr: "${lower(mac_address)}"
+%{ else ~}
+    - interface: ${interface_name}
+%{ endif ~}
+      dhcp: ${gateway == null}
 %{ if virtual_ip != null ~}
       vip:
         ip: ${virtual_ip}
+%{ endif ~}
 %{ endif ~}
 cluster:
   allowSchedulingOnControlPlanes: ${allow_scheduling_on_control_planes}

@@ -11,6 +11,13 @@ machine:
 %{ if hostname != "" ~}
     hostname: ${hostname}
 %{ endif ~}
+%{ if gateway != null ~}
     interfaces:
-    - interface: eth0
-      dhcp: true
+%{ if mac_address != "" ~}
+    - deviceSelector:
+        hardwareAddr: "${lower(mac_address)}"
+%{ else ~}
+    - interface: ${interface_name}
+%{ endif ~}
+      dhcp: false
+%{ endif ~}

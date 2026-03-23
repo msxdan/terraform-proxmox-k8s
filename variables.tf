@@ -36,6 +36,8 @@ variable "nodes" {
     host_node        = string
     machine_type     = string
     ip               = string
+    gateway          = optional(string)
+    subnet_mask      = optional(string, "24")
     mac_address      = string
     vm_id            = number
     cpu              = number
@@ -168,6 +170,9 @@ variable "external_nodes" {
   type = map(object({
     machine_type     = optional(string, "worker")
     ip               = string
+    gateway          = optional(string)
+    mac_address      = optional(string)
+    interface_name   = optional(string, "eth0")
     arch             = optional(string, "arm64")
     platform         = optional(string, "metal")
     kernel_args      = optional(list(string), ["net.ifnames=0"])
