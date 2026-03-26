@@ -150,6 +150,7 @@ list.
 - [ ] **Reflector** — Replicates Secrets/ConfigMaps across namespaces. Common need with cert-manager wildcard certificates (one cert, many namespaces).
 - [ ] **Reloader** — Restarts pods when a referenced Secret/ConfigMap changes. Useful with cert-manager certificate rotation.
 - [ ] **DCGM Exporter** — NVIDIA GPU metrics (temperature, utilization, memory, power) for Prometheus. Complements the NVIDIA Device Plugin already in the module. Talos-specific: same `runtimeClassName: nvidia` and CDI config as the device plugin.
+- [ ] **KEDA** — Kubernetes Event-Driven Autoscaler. Scales workloads (including to zero) based on event sources: Prometheus metrics, cron schedules, message queues, HTTP traffic, etc. Extends HPA with ScaledObject/ScaledJob CRDs. Complements Cluster Autoscaler (KEDA scales pods, CA scales nodes). No Talos-specific config.
 - [ ] **Descheduler** — Rebalances pods across nodes. Useful in homelabs where nodes reboot frequently (Talos upgrades, power events).
 - [ ] **Local Path Provisioner** — Simple StorageClass for nodes without Proxmox CSI (e.g., external bare-metal Raspberry Pi). Talos-specific: uses `/var/local` as writable path.
 - [ ] **Cluster Autoscaler** (Karpenter + Proxmox + Talos) — Automatic node provisioning and scaling. Requires Proxmox cloud provider integration.
