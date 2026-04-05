@@ -151,7 +151,7 @@ See [TODO.md](TODO.md) for the full roadmap.
 | [terraform](https://developer.hashicorp.com/terraform/install) / [opentofu](https://opentofu.org/docs/intro/install/) | >= 1.10.0, < 2.0.0 |
 | [bpg/proxmox](https://registry.terraform.io/providers/bpg/proxmox/latest) | ~> 0.68 |
 | [siderolabs/talos](https://registry.terraform.io/providers/siderolabs/talos/latest) | ~> 0.10 |
-| [hashicorp/helm](https://registry.terraform.io/providers/hashicorp/helm/latest) | ~> 2.0 |
+| [hashicorp/helm](https://registry.terraform.io/providers/hashicorp/helm/latest) | >= 2.0, < 4.0 |
 | [hashicorp/http](https://registry.terraform.io/providers/hashicorp/http/latest) | ~> 3.0 |
 | [hashicorp/time](https://registry.terraform.io/providers/hashicorp/time/latest) | ~> 0.9 |
 
