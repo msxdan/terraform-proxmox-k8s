@@ -144,6 +144,24 @@ See [TODO.md](TODO.md) for the full roadmap.
 - [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) to manage Kubernetes
 - A [Proxmox VE](https://www.proxmox.com/) host with API access and SSH configured
 
+### :package: Requirements
+
+| Name | Version |
+|------|---------|
+| [terraform](https://developer.hashicorp.com/terraform/install) / [opentofu](https://opentofu.org/docs/intro/install/) | >= 1.10.0, < 2.0.0 |
+| [bpg/proxmox](https://registry.terraform.io/providers/bpg/proxmox/latest) | ~> 0.68 |
+| [siderolabs/talos](https://registry.terraform.io/providers/siderolabs/talos/latest) | ~> 0.10 |
+| [hashicorp/helm](https://registry.terraform.io/providers/hashicorp/helm/latest) | >= 2.0, < 4.0 |
+| [hashicorp/http](https://registry.terraform.io/providers/hashicorp/http/latest) | ~> 3.0 |
+| [hashicorp/time](https://registry.terraform.io/providers/hashicorp/time/latest) | ~> 0.9 |
+
+<details>
+<summary><b>Why bpg/proxmox?</b></summary>
+
+This module uses [bpg/proxmox](https://github.com/bpg/terraform-provider-proxmox) instead of [Telmate/proxmox](https://github.com/Telmate/terraform-provider-proxmox). Both are actively maintained, but bpg offers a faster release cadence with frequent stable versions, granular resource types (e.g. `proxmox_virtual_environment_download_file` used by this module to fetch Talos images directly to Proxmox nodes), and is the recommended choice for new projects.
+
+</details>
+
 ### :dart: Installation
 
 Create your module configuration (e.g. `main.tf`):
