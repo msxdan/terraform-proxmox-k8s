@@ -1,0 +1,19 @@
+# CRD management — keep CRDs on uninstall to prevent data loss
+crds:
+  install: true
+
+interceptor:
+  replicas:
+    min: ${interceptor_min_replicas}
+    max: ${interceptor_max_replicas}
+    waitTimeout: ${interceptor_wait_timeout}
+  resources:
+    requests:
+      cpu: "${interceptor_cpu_request}"
+      memory: "${interceptor_memory_request}"
+    limits:
+      cpu: "${interceptor_cpu_limit}"
+      memory: "${interceptor_memory_limit}"
+
+scaler:
+  pendingRequestsInterceptor: ${pending_requests_interceptor}

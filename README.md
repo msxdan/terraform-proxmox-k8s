@@ -99,6 +99,13 @@ Essential Kubernetes components deployed automatically as part of `tofu apply`:
   </summary>
   Creates PersistentVolumes backed by Proxmox storage (LVM, ZFS, Ceph). Alternative to Longhorn — uses existing Proxmox storage instead of in-cluster replication. Disabled by default.
 
+- <summary>
+    <img align="center" src="https://www.google.com/s2/favicons?domain=keda.sh&sz=32" width="16" height="16">
+    <b><a href="https://keda.sh">KEDA</a></b> <i>(optional)</i>
+  </summary>
+  Kubernetes Event-Driven Autoscaler — scales workloads (including to zero) based on event sources: Prometheus metrics, cron schedules, message queues, HTTP traffic, and more. Includes optional <a href="https://github.com/kedacore/http-add-on">HTTP add-on</a> for scaling based on incoming HTTP requests. Disabled by default.
+
+
 ### :construction: Roadmap
 
 - <summary>
