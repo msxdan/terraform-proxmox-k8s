@@ -140,6 +140,36 @@ variable "nvidia_device_plugin" {
   default = {}
 }
 
+variable "keda" {
+  description = "KEDA — Kubernetes Event-Driven Autoscaler (scales workloads based on event sources including HTTP traffic)"
+  type = object({
+    enabled                    = optional(bool, false)
+    version                    = optional(string, "2.19.0")
+    values                     = optional(list(string), [])
+    operator_replicas          = optional(number, 1)
+    metrics_server_replicas    = optional(number, 1)
+    webhooks_replicas          = optional(number, 1)
+    prometheus_service_monitor = optional(bool, false)
+    cert_manager_certificates  = optional(bool, false)
+    http = optional(object({
+      enabled                      = optional(bool, false)
+      version                      = optional(string, "0.13.0")
+      values                       = optional(list(string), [])
+      interceptor_min_replicas     = optional(number, 2)
+      interceptor_max_replicas     = optional(number, 50)
+      interceptor_wait_timeout     = optional(string, "30s")
+      pending_requests_interceptor = optional(number, 200)
+      interceptor_resources = optional(object({
+        cpu_request    = optional(string, "100m")
+        cpu_limit      = optional(string, "500m")
+        memory_request = optional(string, "64Mi")
+        memory_limit   = optional(string, "256Mi")
+      }), {})
+    }), {})
+  })
+  default = {}
+}
+
 variable "proxmox_csi" {
   description = "Proxmox CSI Plugin — creates PVs backed by Proxmox storage (LVM, ZFS, Ceph)"
   type = object({

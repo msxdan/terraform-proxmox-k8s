@@ -136,6 +136,61 @@ resource "helm_release" "proxmox_csi" {
   )
 }
 
+# --- KEDA ---
+
+resource "helm_release" "keda" {
+  count = var.keda.enabled ? 1 : 0
+
+  depends_on = [
+    helm_release.cilium
+  ]
+
+  name             = "keda"
+  namespace        = "keda"
+  create_namespace = true
+  repository       = "https://kedacore.github.io/charts"
+  chart            = "keda"
+  version          = var.keda.version
+  values = concat(
+    [templatefile("${path.module}/values/keda.yaml.tftpl", {
+      operator_replicas          = var.keda.operator_replicas
+      metrics_server_replicas    = var.keda.metrics_server_replicas
+      webhooks_replicas          = var.keda.webhooks_replicas
+      prometheus_service_monitor = var.keda.prometheus_service_monitor
+      cert_manager_certificates  = var.keda.cert_manager_certificates
+    })],
+    var.keda.values
+  )
+}
+
+resource "helm_release" "keda_http_add_on" {
+  count = var.keda.enabled && var.keda.http.enabled ? 1 : 0
+
+  depends_on = [
+    helm_release.keda
+  ]
+
+  name             = "keda-add-ons-http"
+  namespace        = "keda"
+  create_namespace = true
+  repository       = "https://kedacore.github.io/charts"
+  chart            = "keda-add-ons-http"
+  version          = var.keda.http.version
+  values = concat(
+    [templatefile("${path.module}/values/keda-http-add-on.yaml.tftpl", {
+      interceptor_min_replicas     = var.keda.http.interceptor_min_replicas
+      interceptor_max_replicas     = var.keda.http.interceptor_max_replicas
+      interceptor_wait_timeout     = var.keda.http.interceptor_wait_timeout
+      pending_requests_interceptor = var.keda.http.pending_requests_interceptor
+      interceptor_cpu_request      = var.keda.http.interceptor_resources.cpu_request
+      interceptor_cpu_limit        = var.keda.http.interceptor_resources.cpu_limit
+      interceptor_memory_request   = var.keda.http.interceptor_resources.memory_request
+      interceptor_memory_limit     = var.keda.http.interceptor_resources.memory_limit
+    })],
+    var.keda.http.values
+  )
+}
+
 # --- Health Check ---
 #
 # Uses a resource (not data source) so it only runs during apply,
@@ -151,7 +206,9 @@ resource "terraform_data" "cluster_health" {
     helm_release.cert_manager,
     helm_release.longhorn,
     helm_release.nvidia_device_plugin,
-    helm_release.proxmox_csi
+    helm_release.proxmox_csi,
+    helm_release.keda,
+    helm_release.keda_http_add_on
   ]
 
   # Re-check health when node list or versions change

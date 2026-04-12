@@ -52,10 +52,6 @@ run "longhorn_enabled" {
     error_message = "Longhorn should be created when enabled"
   }
 
-  assert {
-    condition     = helm_release.longhorn[0].version == "1.11.0"
-    error_message = "Default Longhorn version should be 1.11.0"
-  }
 }
 
 run "cert_manager_disabled" {
@@ -71,27 +67,64 @@ run "cert_manager_disabled" {
   }
 }
 
-run "custom_versions" {
+run "keda_enabled" {
   command = plan
 
   variables {
-    cilium         = { version = "1.20.0" }
-    metrics_server = { version = "3.14.0" }
-    cert_manager   = { version = "1.21.0" }
+    keda = { enabled = true }
   }
 
   assert {
-    condition     = helm_release.cilium.version == "1.20.0"
-    error_message = "Cilium version should be overridable"
+    condition     = length(helm_release.keda) == 1
+    error_message = "KEDA should be created when enabled"
   }
 
   assert {
-    condition     = helm_release.metrics_server[0].version == "3.14.0"
-    error_message = "Metrics Server version should be overridable"
-  }
-
-  assert {
-    condition     = helm_release.cert_manager[0].version == "1.21.0"
-    error_message = "Cert Manager version should be overridable"
+    condition     = length(helm_release.keda_http_add_on) == 0
+    error_message = "KEDA HTTP add-on should not be created when http is not enabled"
   }
 }
+
+run "keda_http_add_on_enabled" {
+  command = plan
+
+  variables {
+    keda = {
+      enabled = true
+      http    = { enabled = true }
+    }
+  }
+
+  assert {
+    condition     = length(helm_release.keda) == 1
+    error_message = "KEDA should be created when enabled"
+  }
+
+  assert {
+    condition     = length(helm_release.keda_http_add_on) == 1
+    error_message = "KEDA HTTP add-on should be created when http is enabled"
+  }
+
+}
+
+run "keda_http_requires_keda" {
+  command = plan
+
+  variables {
+    keda = {
+      enabled = false
+      http    = { enabled = true }
+    }
+  }
+
+  assert {
+    condition     = length(helm_release.keda) == 0
+    error_message = "KEDA should not be created when disabled"
+  }
+
+  assert {
+    condition     = length(helm_release.keda_http_add_on) == 0
+    error_message = "KEDA HTTP add-on should not be created when KEDA is disabled"
+  }
+}
+

@@ -35,14 +35,14 @@ Complete guide for upgrading and operating Talos Linux clusters managed by this 
 
 Each row is a validated combination of component versions tested to work together. The module's upgrade procedures support moving between these stacks sequentially (v1 → v2 → v3 → v4).
 
-| Stack | Talos | Kubernetes | Cilium | Metrics Server | Cert Manager | Gateway API | NVIDIA Device Plugin | Proxmox CSI | Longhorn |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| **v5** (future) | v1.12.x | v1.35.x | 1.20.x | 0.8.x | 1.20.x | v1.5.x | 0.19.x | 0.18.x | 1.11.x |
-| **v4** (current) | v1.12.5 | v1.35.2 | 1.19.1 | 0.8.0 | 1.20.0 | v1.4.0 | 0.19.0 | 0.18.0 | 1.11.0 |
-| **v3** | v1.11.6 | v1.34.5 | 1.19.1 | 0.8.0 | 1.20.0 | v1.4.0 | 0.18.2 | 0.18.0 | 1.11.0 |
-| **v2** | v1.11.6 | v1.33.9 | 1.19.1 | 0.8.0 | 1.20.0 | v1.4.0 | 0.18.2 | 0.18.0 | 1.11.0 |
-| **v1** (validated) | v1.11.6 | v1.32.8 | 1.18.1 | 0.8.0 | 1.18.2 | v1.3.0 | 0.18.2 | 0.18.0 | 1.7.3 |
-| **v1** (base) | v1.11.0 | v1.32.8 | 1.18.1 | 0.8.0 | 1.18.2 | v1.3.0 | 0.18.2 | 0.18.0 | 1.7.3 |
+| Stack | Talos | Kubernetes | Cilium | Metrics Server | Cert Manager | Gateway API | NVIDIA Device Plugin | Proxmox CSI | Longhorn | KEDA |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| **v5** (future) | v1.12.x | v1.35.x | 1.20.x | 0.8.x | 1.20.x | v1.5.x | 0.19.x | 0.18.x | 1.11.x | 2.19.x |
+| **v4** (current) | v1.12.5 | v1.35.2 | 1.19.1 | 0.8.0 | 1.20.0 | v1.4.0 | 0.19.0 | 0.18.0 | 1.11.0 | 2.19.0 |
+| **v3** | v1.11.6 | v1.34.5 | 1.19.1 | 0.8.0 | 1.20.0 | v1.4.0 | 0.18.2 | 0.18.0 | 1.11.0 | — |
+| **v2** | v1.11.6 | v1.33.9 | 1.19.1 | 0.8.0 | 1.20.0 | v1.4.0 | 0.18.2 | 0.18.0 | 1.11.0 | — |
+| **v1** (validated) | v1.11.6 | v1.32.8 | 1.18.1 | 0.8.0 | 1.18.2 | v1.3.0 | 0.18.2 | 0.18.0 | 1.7.3 | — |
+| **v1** (base) | v1.11.0 | v1.32.8 | 1.18.1 | 0.8.0 | 1.18.2 | v1.3.0 | 0.18.2 | 0.18.0 | 1.7.3 | — |
 
 > **Chart vs app versions**: The tables show app versions. The module configures
 > Helm chart versions which may differ:
@@ -59,6 +59,13 @@ Each row is a validated combination of component versions tested to work togethe
 | **Cert Manager** | 1.17, 1.18 | 1.17-1.20 | 1.19, 1.20 | 1.20 |
 | **Gateway API** | v1.3-v1.5 | v1.3-v1.5 | v1.4, v1.5 | v1.4, v1.5 |
 | **Longhorn** | 1.8-1.11 | 1.9-1.11 | 1.11 | 1.11 |
+| **KEDA** | 2.17-2.19 | 2.18, 2.19 | 2.19 | 2.19* |
+| **KEDA HTTP Add-on** | 0.9-0.13 | 0.12, 0.13 | 0.13 | 0.13* |
+
+> \* KEDA 2.19 officially supports up to K8s 1.34 (N-2 policy). K8s 1.35
+> works in practice (validated in v4 stack) but is outside the official
+> support window. Monitor [keda.sh](https://keda.sh/docs/operate/cluster/)
+> for updated compatibility.
 
 > **Gateway API v1.4 vs v1.5 with Cilium 1.19**: Gateway API v1.5.0 graduated
 > TLSRoute to standard as `v1`, but sets `v1alpha2` as `served: false`. Cilium 1.19
