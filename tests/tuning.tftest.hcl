@@ -62,30 +62,51 @@ run "default_tuning_plans_successfully" {
   }
 }
 
-run "custom_machine_tuning" {
+run "custom_controlplane_tuning" {
   command = plan
 
   variables {
     machine_tuning = {
-      sysctls = {
-        "net.core.somaxconn" = "32768"
+      controlplane = {
+        sysctls = {
+          "net.core.somaxconn" = "32768"
+        }
+        shutdown_grace_period  = "30s"
+        image_gc_high          = 80
+        image_gc_low           = 60
+        server_tls_bootstrap   = true
+        seccomp_default        = true
+        allowed_unsafe_sysctls = []
       }
-      shutdown_grace_period = "30s"
-      image_gc_high         = 80
-      image_gc_low          = 60
-      server_tls_bootstrap  = true
-      seccomp_default       = true
     }
   }
 
   assert {
     condition     = data.talos_machine_configuration.this["cp-01"].machine_type == "controlplane"
-    error_message = "Control plane should plan with custom machine_tuning"
+    error_message = "Control plane should plan with custom controlplane tuning"
+  }
+}
+
+run "custom_worker_tuning" {
+  command = plan
+
+  variables {
+    machine_tuning = {
+      worker = {
+        sysctls = {
+          "net.core.somaxconn" = "32768"
+          "vm.max_map_count"   = "262144"
+        }
+        shutdown_grace_period = "30s"
+        server_tls_bootstrap  = true
+        seccomp_default       = true
+      }
+    }
   }
 
   assert {
     condition     = data.talos_machine_configuration.this["worker-01"].machine_type == "worker"
-    error_message = "Worker should plan with custom machine_tuning"
+    error_message = "Worker should plan with custom worker tuning"
   }
 }
 
@@ -113,12 +134,18 @@ run "empty_sysctls" {
 
   variables {
     machine_tuning = {
-      sysctls = {}
+      controlplane = { sysctls = {} }
+      worker       = { sysctls = {} }
     }
   }
 
   assert {
     condition     = data.talos_machine_configuration.this["cp-01"].machine_type == "controlplane"
     error_message = "Control plane should plan with empty sysctls"
+  }
+
+  assert {
+    condition     = data.talos_machine_configuration.this["worker-01"].machine_type == "worker"
+    error_message = "Worker should plan with empty sysctls"
   }
 }
