@@ -362,6 +362,8 @@ data "talos_machine_configuration" "this" {
         gateway                            = each.value.gateway
         mac_address                        = each.value.mac_address
         interface_name                     = "eth0"
+        machine_tuning                     = var.machine_tuning
+        cluster_tuning                     = var.cluster_tuning
       })
       ] : [
       templatefile("${path.module}/templates/worker.yaml.tftpl", {
@@ -536,6 +538,8 @@ data "talos_machine_configuration" "external" {
         gateway                            = each.value.gateway
         mac_address                        = each.value.mac_address != null ? each.value.mac_address : ""
         interface_name                     = each.value.interface_name
+        machine_tuning                     = var.machine_tuning
+        cluster_tuning                     = var.cluster_tuning
       })
       ] : [
       templatefile("${path.module}/templates/worker.yaml.tftpl", {

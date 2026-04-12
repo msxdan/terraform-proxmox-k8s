@@ -25,8 +25,37 @@ machine:
         ip: ${virtual_ip}
 %{ endif ~}
 %{ endif ~}
+%{ if length(machine_tuning.sysctls) > 0 ~}
+  sysctls:
+%{ for key, value in machine_tuning.sysctls ~}
+    ${key}: "${value}"
+%{ endfor ~}
+%{ endif ~}
+  kubelet:
+%{ if machine_tuning.seccomp_default ~}
+    defaultRuntimeSeccompProfileEnabled: true
+%{ endif ~}
+    extraConfig:
+      shutdownGracePeriod: ${machine_tuning.shutdown_grace_period}
+      shutdownGracePeriodCriticalPods: ${machine_tuning.shutdown_grace_period}
+      imageGCHighThresholdPercent: ${machine_tuning.image_gc_high}
+      imageGCLowThresholdPercent: ${machine_tuning.image_gc_low}
+%{ if machine_tuning.server_tls_bootstrap ~}
+      serverTLSBootstrap: true
+%{ endif ~}
 cluster:
   allowSchedulingOnControlPlanes: ${allow_scheduling_on_control_planes}
+  adminKubeconfig:
+    certLifetime: ${cluster_tuning.kubeconfig_cert_lifetime}
+  apiServer:
+    resources:
+      requests:
+        cpu: ${cluster_tuning.api_server_cpu_request}
+        memory: ${cluster_tuning.api_server_memory_request}
+  etcd:
+    extraArgs:
+      election-timeout: "${cluster_tuning.etcd_election_timeout}"
+      heartbeat-interval: "${cluster_tuning.etcd_heartbeat_interval}"
   network:
     cni:
       name: none
