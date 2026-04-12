@@ -555,6 +555,83 @@ talosctl etcd status --nodes <remaining-cp-ip>
 
 ## Reference
 
+### New Variables
+
+#### `machine_tuning` and `cluster_tuning` (Talos tuning)
+
+Two new variables for production-grade Talos machine and cluster configuration.
+Both default to recommended values — no action required for new clusters.
+
+`machine_tuning` is split into `.controlplane` and `.worker` with different
+defaults per node type. Control planes get basic network sysctls; workers get
+full TCP tuning and `vm.max_map_count` for workloads like Elasticsearch and JVMs.
+
+**Existing clusters**: upgrading the module will apply tuning on the next
+`tofu apply`. Changes are non-destructive (kernel sysctls, graceful shutdown,
+image GC, etcd stability, API server resource requests). Review the plan diff
+before applying. Use `-target` for rolling apply per node if preferred.
+
+**`machine_tuning.controlplane` defaults:**
+
+| Field | Default | Effect |
+| --- | --- | --- |
+| `sysctls` | `somaxconn=65535`, `netdev_max_backlog=4096` | Basic network tuning |
+| `shutdown_grace_period` | `"60s"` | Graceful kubelet shutdown |
+| `image_gc_high` / `image_gc_low` | `70` / `50` | More aggressive image cleanup (vs kubelet default 85/80) |
+| `server_tls_bootstrap` | `false` | **Opt-in** — kubelet TLS certificate bootstrap |
+| `seccomp_default` | `false` | **Opt-in** — default seccomp profile for containers |
+| `allowed_unsafe_sysctls` | `["net.core.somaxconn"]` | Allows pods to set somaxconn via securityContext |
+
+**`machine_tuning.worker` defaults:**
+
+| Field | Default | Effect |
+| --- | --- | --- |
+| `sysctls` | All from CP + `tcp_keepalive_*`, `tcp_fin_timeout`, `tcp_tw_reuse`, `vm.max_map_count` | Full network + workload tuning |
+| `shutdown_grace_period` | `"60s"` | Graceful kubelet shutdown |
+| `image_gc_high` / `image_gc_low` | `70` / `50` | More aggressive image cleanup (vs kubelet default 85/80) |
+| `server_tls_bootstrap` | `false` | **Opt-in** — kubelet TLS certificate bootstrap |
+| `seccomp_default` | `false` | **Opt-in** — default seccomp profile for containers |
+| `allowed_unsafe_sysctls` | `["net.core.somaxconn"]` | Allows pods to set somaxconn via securityContext |
+
+**`cluster_tuning` defaults:**
+
+| Field | Default | Effect |
+| --- | --- | --- |
+| `kubeconfig_cert_lifetime` | `"8760h0m0s"` | Kubeconfig certificate lifetime (1 year, Talos default) |
+| `etcd_election_timeout` | `"5000"` | More tolerant etcd election (vs default 1000ms) |
+| `etcd_heartbeat_interval` | `"1000"` | Relaxed etcd heartbeat (vs default 100ms) |
+| `api_server_cpu_request` | `"500m"` | API server resource requests to prevent OOM |
+| `api_server_memory_request` | `"1Gi"` | API server resource requests to prevent OOM |
+
+To disable all tuning and preserve pre-module behavior:
+
+```hcl
+machine_tuning = {
+  controlplane = {
+    sysctls                = {}
+    shutdown_grace_period   = "0s"
+    image_gc_high           = 85
+    image_gc_low            = 80
+    allowed_unsafe_sysctls  = []
+  }
+  worker = {
+    sysctls                = {}
+    shutdown_grace_period   = "0s"
+    image_gc_high           = 85
+    image_gc_low            = 80
+    allowed_unsafe_sysctls  = []
+  }
+}
+
+cluster_tuning = {
+  kubeconfig_cert_lifetime  = "8760h0m0s"
+  etcd_election_timeout     = "1000"
+  etcd_heartbeat_interval   = "100"
+  api_server_cpu_request    = "0"
+  api_server_memory_request = "0"
+}
+```
+
 ### Breaking Changes
 
 #### Component Breaking Changes

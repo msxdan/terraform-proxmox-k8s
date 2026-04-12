@@ -362,6 +362,8 @@ data "talos_machine_configuration" "this" {
         gateway                            = each.value.gateway
         mac_address                        = each.value.mac_address
         interface_name                     = "eth0"
+        tuning                             = var.machine_tuning.controlplane
+        cluster_tuning                     = var.cluster_tuning
       })
       ] : [
       templatefile("${path.module}/templates/worker.yaml.tftpl", {
@@ -372,6 +374,7 @@ data "talos_machine_configuration" "this" {
         gateway        = each.value.gateway
         mac_address    = each.value.mac_address
         interface_name = "eth0"
+        tuning         = var.machine_tuning.worker
       })
     ],
     # Talos 1.12+: hostname via HostnameConfig document (replaces deprecated machine.network.hostname)
@@ -536,6 +539,8 @@ data "talos_machine_configuration" "external" {
         gateway                            = each.value.gateway
         mac_address                        = each.value.mac_address != null ? each.value.mac_address : ""
         interface_name                     = each.value.interface_name
+        tuning                             = var.machine_tuning.controlplane
+        cluster_tuning                     = var.cluster_tuning
       })
       ] : [
       templatefile("${path.module}/templates/worker.yaml.tftpl", {
@@ -546,6 +551,7 @@ data "talos_machine_configuration" "external" {
         gateway        = each.value.gateway
         mac_address    = each.value.mac_address != null ? each.value.mac_address : ""
         interface_name = each.value.interface_name
+        tuning         = var.machine_tuning.worker
       })
     ],
     local.use_hostname_config_doc ? [yamlencode({

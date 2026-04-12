@@ -20,6 +20,54 @@ variable "kernel_args" {
   default     = ["net.ifnames=0"]
 }
 
+variable "machine_tuning" {
+  description = "Talos machine-level tuning per node type (kernel, kubelet, shutdown). Defaults follow production best practices."
+  type = object({
+    controlplane = optional(object({
+      sysctls = optional(map(string), {
+        "net.core.somaxconn"          = "65535"
+        "net.core.netdev_max_backlog" = "4096"
+      })
+      shutdown_grace_period  = optional(string, "60s")
+      image_gc_high          = optional(number, 70)
+      image_gc_low           = optional(number, 50)
+      server_tls_bootstrap   = optional(bool, false)
+      seccomp_default        = optional(bool, false)
+      allowed_unsafe_sysctls = optional(list(string), ["net.core.somaxconn"])
+    }), {})
+    worker = optional(object({
+      sysctls = optional(map(string), {
+        "net.core.somaxconn"           = "65535"
+        "net.core.netdev_max_backlog"  = "4096"
+        "net.ipv4.tcp_keepalive_intvl" = "60"
+        "net.ipv4.tcp_keepalive_time"  = "600"
+        "net.ipv4.tcp_fin_timeout"     = "10"
+        "net.ipv4.tcp_tw_reuse"        = "1"
+        "vm.max_map_count"             = "128000"
+      })
+      shutdown_grace_period  = optional(string, "60s")
+      image_gc_high          = optional(number, 70)
+      image_gc_low           = optional(number, 50)
+      server_tls_bootstrap   = optional(bool, false)
+      seccomp_default        = optional(bool, false)
+      allowed_unsafe_sysctls = optional(list(string), ["net.core.somaxconn"])
+    }), {})
+  })
+  default = {}
+}
+
+variable "cluster_tuning" {
+  description = "Kubernetes cluster-level tuning (etcd, API server, kubeconfig). Defaults follow production best practices."
+  type = object({
+    kubeconfig_cert_lifetime  = optional(string, "8760h0m0s")
+    etcd_election_timeout     = optional(string, "5000")
+    etcd_heartbeat_interval   = optional(string, "1000")
+    api_server_cpu_request    = optional(string, "500m")
+    api_server_memory_request = optional(string, "1Gi")
+  })
+  default = {}
+}
+
 variable "cluster" {
   description = "Cluster configuration"
   type = object({
