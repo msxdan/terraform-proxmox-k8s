@@ -21,3 +21,21 @@ machine:
 %{ endif ~}
       dhcp: false
 %{ endif ~}
+%{ if length(machine_tuning.sysctls) > 0 ~}
+  sysctls:
+%{ for key, value in machine_tuning.sysctls ~}
+    ${key}: "${value}"
+%{ endfor ~}
+%{ endif ~}
+  kubelet:
+%{ if machine_tuning.seccomp_default ~}
+    defaultRuntimeSeccompProfileEnabled: true
+%{ endif ~}
+    extraConfig:
+      shutdownGracePeriod: ${machine_tuning.shutdown_grace_period}
+      shutdownGracePeriodCriticalPods: ${machine_tuning.shutdown_grace_period}
+      imageGCHighThresholdPercent: ${machine_tuning.image_gc_high}
+      imageGCLowThresholdPercent: ${machine_tuning.image_gc_low}
+%{ if machine_tuning.server_tls_bootstrap ~}
+      serverTLSBootstrap: true
+%{ endif ~}

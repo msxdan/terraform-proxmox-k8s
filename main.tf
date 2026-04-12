@@ -374,6 +374,7 @@ data "talos_machine_configuration" "this" {
         gateway        = each.value.gateway
         mac_address    = each.value.mac_address
         interface_name = "eth0"
+        machine_tuning = var.machine_tuning
       })
     ],
     # Talos 1.12+: hostname via HostnameConfig document (replaces deprecated machine.network.hostname)
@@ -550,6 +551,7 @@ data "talos_machine_configuration" "external" {
         gateway        = each.value.gateway
         mac_address    = each.value.mac_address != null ? each.value.mac_address : ""
         interface_name = each.value.interface_name
+        machine_tuning = var.machine_tuning
       })
     ],
     local.use_hostname_config_doc ? [yamlencode({
